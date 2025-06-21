@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat Changer</title>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: background-color 0.2s ease-in-out;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+            background-color: #ff4081;
+            color: white;
+            cursor: pointer;
+        }
+        .box-container {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 20px;
+        }
+        .box {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            transition: background-color 0.1s, transform 0.2s;
+        }
+        .box.animate {
+            transform: scale(1.2) rotate(10deg);
+        }
+    </style>
+</head>
+<body>
+    <button onclick="strt()">Start</button>
+
+    <div class="box-container">
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+    </div>
+
+    <audio id="audio" src="mi amor.mp3" crossorigin="anonymous"></audio>
+	<!--If the audio is from a different origin and you try to access or manipulate it with JavaScript, the browser will block access due to CORS(Cross-Origin Resource Sharing) policy.-->
+
+    <script>
+        const audio = document.getElementById('audio');
+        const boxes = document.querySelectorAll('.box');
+
+        const colorPalette = ['#ff1744', '#fdd835', '#00e676', '#00b0ff', '#d500f9', '#ff9100'];
+
+        function getRandomColor() {
+            const index = Math.floor(Math.random() * colorPalette.length);
+            return colorPalette[index];
+        }
+
+        // Calculate average volume
+        function getVolumeLevel(dataArray) {
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            return sum / dataArray.length;
+        }
+        async function strt() {
+            const audioCtx = new AudioContext(); // Creates an AudioContext
+
+            const source = audioCtx.createMediaElementSource(audio);
+            const analyser = audioCtx.createAnalyser();  // access frequency data
+
+            analyser.fftSize = 256;  // determines the frequency resolution
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            audio.play();
+            
+            function animate() {
+                analyser.getByteFrequencyData(dataArray);
+                const volume = getVolumeLevel(dataArray);
+
+                if (volume > 60) {
+                    document.body.style.backgroundColor = getRandomColor();
+                }
+
+                boxes.forEach(box => {
+                    if (volume > 30) {
+                        const color = getRandomColor();
+                        box.style.backgroundColor = color;
+                        box.classList.add("animate");
+                        setTimeout(() => {
+                            box.classList.remove("animate");
+                        }, 150);
+                    }
+                });
+
+                requestAnimationFrame(animate); // Repeat animation
+            }
+
+            animate();
+        }
+    </script>
+</body>
+</html>
