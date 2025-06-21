@@ -53,8 +53,6 @@
     </div>
 
     <audio id="audio" src="mi amor.mp3" crossorigin="anonymous"></audio>
-	<!--If the audio is from a different origin and you try to access or manipulate it with JavaScript, the browser will block access due to CORS(Cross-Origin Resource Sharing) policy.-->
-
     <script>
         const audio = document.getElementById('audio');
         const boxes = document.querySelectorAll('.box');
@@ -75,12 +73,12 @@
             return sum / dataArray.length;
         }
         async function strt() {
-            const audioCtx = new AudioContext(); // Creates an AudioContext
+            const audioCtx = new AudioContext();
 
             const source = audioCtx.createMediaElementSource(audio);
-            const analyser = audioCtx.createAnalyser();  // access frequency data
+            const analyser = audioCtx.createAnalyser();
 
-            analyser.fftSize = 256;  // determines the frequency resolution
+            analyser.fftSize = 256;
 
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
@@ -108,7 +106,7 @@
                     }
                 });
 
-                requestAnimationFrame(animate); // Repeat animation
+                requestAnimationFrame(animate);
             }
 
             animate();
